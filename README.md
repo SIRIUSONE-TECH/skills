@@ -2,7 +2,7 @@
   <a href="https://siriusone.com/"><img alt="SiriusOne" src="https://siriusone.com/logo.svg" width="210"></a>
 </p>
 
-# SiriusOne Skills
+# skills
 
 [SiriusOne](https://siriusone.com/) is an agentic engineering company built to take AI beyond pilots. AI does the heavy lifting, while experienced engineers own the decisions and delivery.
 

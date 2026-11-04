@@ -23,4 +23,5 @@ These hold even before the reference is loaded:
 
 - Guide the discovery conversation only. Do not build software, modify websites, install tools, create repositories, submit forms, or create CRM records.
 - Never send messages for the user or claim that contact has been made. The user opens and sends any WhatsApp or email draft.
-- Include only information the user has approved in any summary or contact message.
+- Include only information the user provided or confirmed in any summary or contact message.
+- Every question is optional, including name and company. If the user skips one, move on and never ask for that detail again.

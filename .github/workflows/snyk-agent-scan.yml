@@ -1,0 +1,33 @@
+name: Snyk Agent Scan
+
+on:
+  push:
+    branches: [main] # includes merged PRs
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: astral-sh/setup-uv@v6
+
+      # 0.5.x emits the same W0xx codes skills.sh shows (e.g. W011).
+      # --dangerously-run-mcp-servers is required by --ci; no MCP servers exist in this repo.
+      - name: Scan skills
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        run: |
+          uvx snyk-agent-scan@0.5.17 --ci --dangerously-run-mcp-servers --json skills \
+            | tee snyk-agent-scan.json
+
+      - name: Upload report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: snyk-agent-scan
+          path: snyk-agent-scan.json

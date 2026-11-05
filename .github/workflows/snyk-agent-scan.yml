@@ -22,12 +22,13 @@ jobs:
         shell: bash
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        # Pass/fail is decided by snyk-report.sh: medium+ findings or scanner
+        # errors fail, low findings are allowed. The scanner's own exit code
+        # (1 on any finding) is ignored.
         run: |
-          rc=0
           uvx -q snyk-agent-scan@0.5.17 --ci --dangerously-run-mcp-servers \
-            --suppress-mcpserver-io=true --json skills > snyk-agent-scan.json || rc=$?
+            --suppress-mcpserver-io=true --json skills > snyk-agent-scan.json || true
           .github/scripts/snyk-report.sh snyk-agent-scan.json
-          exit $rc
 
       - name: Upload report
         if: always()

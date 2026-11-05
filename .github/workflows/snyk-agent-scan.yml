@@ -19,6 +19,7 @@ jobs:
       # 0.5.x emits the same W0xx codes skills.sh shows (e.g. W011).
       # --dangerously-run-mcp-servers is required by --ci; no MCP servers exist in this repo.
       - name: Scan skills
+        shell: bash # explicit shell enables pipefail so tee doesn't mask the exit code
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
         run: |

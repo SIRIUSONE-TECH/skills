@@ -2,6 +2,7 @@ name: Snyk Agent Scan
 
 on:
   push:
+    branches: [main] # includes merged PRs
   workflow_dispatch:
 
 permissions:

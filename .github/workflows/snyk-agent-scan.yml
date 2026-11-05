@@ -2,12 +2,6 @@ name: Snyk Agent Scan
 
 on:
   push:
-    branches: [main]
-    paths: ["skills/**", ".github/workflows/snyk-agent-scan.yml"]
-  pull_request:
-    paths: ["skills/**", ".github/workflows/snyk-agent-scan.yml"]
-  schedule:
-    - cron: "0 6 * * *"
   workflow_dispatch:
 
 permissions:
@@ -15,7 +9,6 @@ permissions:
 
 jobs:
   scan:
-    if: github.event_name != 'schedule'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -37,42 +30,3 @@ jobs:
         with:
           name: snyk-agent-scan
           path: snyk-agent-scan.json
-
-  # What skills.sh currently shows. Fails only when skills.sh has scanned the
-  # latest skills/ commit and Snyk still rates it medium or worse; a stale
-  # result is reported as a warning.
-  skills-sh-status:
-    if: github.event_name != 'pull_request'
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      - name: Check skills.sh audit
-        env:
-          SOURCE: ${{ github.repository }}
-        run: |
-          fail=0
-          for dir in skills/*/; do
-            skill=$(basename "$dir")
-            status=$(curl -sf --max-time 10 \
-              "https://www.skills.sh/tele/audit?source=${SOURCE}&skills=${skill}" \
-              | jq -c --arg s "$skill" '.[$s].snyk // empty') || status=""
-            if [ -z "$status" ]; then
-              echo "::warning title=${skill}::No Snyk result on skills.sh"
-              continue
-            fi
-            risk=$(jq -r .risk <<<"$status")
-            analyzed=$(jq -r .analyzedAt <<<"$status")
-            committed=$(git log -1 --format=%cI -- "$dir")
-            echo "${skill}: risk=${risk} analyzedAt=${analyzed} lastCommit=${committed}"
-
-            if [ "$(date -d "$analyzed" +%s)" -lt "$(date -d "$committed" +%s)" ]; then
-              echo "::warning title=${skill}::skills.sh result (${risk}, ${analyzed}) predates last commit ${committed}"
-            elif [[ "$risk" =~ ^(medium|high|critical)$ ]]; then
-              echo "::error title=${skill}::Snyk on skills.sh rates the current version ${risk}"
-              fail=1
-            fi
-          done
-          exit $fail

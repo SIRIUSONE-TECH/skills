@@ -19,12 +19,15 @@ jobs:
       # 0.5.x emits the same W0xx codes skills.sh shows (e.g. W011).
       # --dangerously-run-mcp-servers is required by --ci; no MCP servers exist in this repo.
       - name: Scan skills
-        shell: bash # explicit shell enables pipefail so tee doesn't mask the exit code
+        shell: bash
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
         run: |
-          uvx snyk-agent-scan@0.5.17 --ci --dangerously-run-mcp-servers --json skills \
-            | tee snyk-agent-scan.json
+          rc=0
+          uvx -q snyk-agent-scan@0.5.17 --ci --dangerously-run-mcp-servers \
+            --suppress-mcpserver-io=true --json skills > snyk-agent-scan.json || rc=$?
+          .github/scripts/snyk-report.sh snyk-agent-scan.json
+          exit $rc
 
       - name: Upload report
         if: always()
